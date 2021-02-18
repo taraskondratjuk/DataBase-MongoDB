@@ -96,7 +96,7 @@ db.getCollection('students').find({
   })
   
  
-8) Знайти найуспішніший клас
+18) Знайти найуспішніший клас
 db.getCollection('students').aggregate([
 {$group:{_id:"$class",avgGrade:{$avg:"$avgScore"}}},
 {$sort:{_id:-1}},
