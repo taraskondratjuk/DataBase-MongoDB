@@ -57,8 +57,49 @@ db.getCollection('students').aggregate([
 
 
 12) Знайти дітей з не повною сімєю
-db.getCollection('students').find({parents:{$size:1}})
+db.getCollection('students').find({parents:{$not:{$size:2}}});
 
 
 
 13) Знайти батьків які не працюють
+db.getCollection('students').aggregate([
+    {$unwind:"$parents"},
+    {$match:{"parents.profession":{$exists : false}}},
+    {$project:{name:"$parents.name",gender:"$parents.gender",_id:0}}
+])
+
+
+
+14) Не працюючих батьків влаштувати офіціантами
+db.getCollection('students').aggregate([
+    {$unwind:"$parents"},
+    {$match:{"parents.profession":{$exists : false}}},
+    {$set:{"parents.profession":"waitress"}}
+])
+
+15) Вигнати дітей, які мають середній бал менше ніж 2.5
+db.getCollection('students').remove({avgScore:{$lt:2.5}})
+
+
+
+16) Дітям, батьки яких працюють в освіті ( teacher ) поставити 5
+db.getCollection('students').updateMany(
+{"parents.profession":"teacher"},
+{$set:{"avgScore":5}}
+)
+
+
+17) Знайти дітей які вчаться в початковій школі (до 5 класу) і вивчають фізику ( physics )
+db.getCollection('students').find({
+    class:{$lte:5},
+    lessons:"physics"
+  })
+  
+ 
+8) Знайти найуспішніший клас
+db.getCollection('students').aggregate([
+{$group:{_id:"$class",avgGrade:{$avg:"$avgScore"}}},
+{$sort:{_id:-1}},
+{$project:{class:"$_id",avgGrade:"$avgGrade",_id:0}},
+{$limit:1}
+])
